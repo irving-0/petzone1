@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PetZone • Tienda de Mascotas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--green:#15803d;--green2:#dcfce7;--bg:#f7faf7;--panel:#fff;--text:#183018;--muted:#657565;--red:#dc2626;--line:#e5eee5;--shadow:0 8px 28px #17351a12}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.app{display:flex;min-height:100vh}.side{width:245px;background:#e9f8e8;border-right:1px solid #d8ead7;padding:20px;position:fixed;inset:0 auto 0 0}
+.logo{font-size:25px;font-weight:900;color:var(--green);margin:8px 5px 24px}.logo small{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.nav button{width:100%;text-align:left;background:transparent;color:var(--text);margin:3px 0}.nav button:hover,.nav button.active{background:#fff;box-shadow:var(--shadow);color:var(--green)}
+.main{margin-left:245px;width:calc(100% - 245px);padding:26px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.top h1{margin:0;font-size:27px}.user{background:#fff;padding:10px 14px;border-radius:12px;box-shadow:var(--shadow)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.card .big{font-size:25px;font-weight:900;margin-top:7px}.muted{color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:15px}.toolbar input,.toolbar select,.form input,.form select,.form textarea{background:#f5faf5;border:1px solid #dce9dc;border-radius:9px;padding:10px;color:var(--text);outline:none}.toolbar input{flex:1;min-width:200px}
+.btn{background:#edf7ed;color:var(--green)}.btn.primary{background:var(--green);color:#fff}.btn.red{background:#fee2e2;color:#991b1b}.btn.dark{background:#183018;color:#fff}.reportbar{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 16px}.reportbar button{font-size:12px;padding:8px 11px}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}th{background:#f1f8f1;color:#3c5b3c}tr:hover td{background:#fbfefb}
+.grid-products{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:15px}.product{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;box-shadow:var(--shadow)}.product img{width:100%;height:150px;object-fit:contain;background:#f5faf5;border-radius:10px}.product h3{font-size:15px;margin:10px 0 5px}.price{font-weight:900;color:var(--green);font-size:18px}.low{color:#b91c1c;font-weight:800}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:13px}.form .full{grid-column:1/-1}.modal{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal.show{display:flex}.modalbox{background:#fff;border-radius:18px;padding:22px;max-width:700px;width:100%;max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center}.modalhead h2{margin:0}.cart{background:#f7faf7;border-radius:12px;padding:12px}.login{min-height:100vh;display:flex}.login-left{width:40%;background:#e9f8e8;display:flex;align-items:center;justify-content:center;text-align:center}.login-left h1{font-size:60px;margin:0;color:var(--green)}.login-right{flex:1;display:flex;align-items:center;justify-content:center}.login-box{width:400px;background:#fff;padding:35px;border-radius:20px;box-shadow:var(--shadow)}.login-box input{width:100%;margin:7px 0 16px;padding:12px;border:1px solid #dce9dc;border-radius:10px;background:#f5faf5}.hidden{display:none}.toast{position:fixed;right:20px;bottom:20px;background:#183018;color:#fff;padding:13px 18px;border-radius:12px;display:none;z-index:50}
+@media(max-width:900px){.side{width:72px;padding:12px}.logo span,.logo small,.nav button span{display:none}.main{margin-left:72px;width:calc(100% - 72px)}.cards{grid-template-columns:repeat(2,1fr)}.login-left{display:none}}
+@media(max-width:600px){.main{padding:14px}.cards{grid-template-columns:1fr}.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loginView" class="login">
+  <div class="login-left"><div><div style="font-size:80px">🐾</div><h1>PETZONE</h1><p>Tu tienda de mascotas</p><p class="muted">Ventas • Inventario • Clientes • Catálogo</p></div></div>
+  <div class="login-right"><div class="login-box">
+    <h2>Bienvenido</h2><p class="muted">Inicia sesión para administrar PetZone</p>
+    <label>Usuario</label><input id="loginUser" value="admin">
+    <label>Contraseña</label><input id="loginPass" type="password" value="admin123">
+    <button class="btn primary" style="width:100%" onclick="login()">ENTRAR</button>
+    <p class="muted" style="font-size:12px;margin-top:15px">Demo: admin / admin123</p>
+  </div></div>
+</div>
+
+<div id="app" class="app hidden">
+<aside class="side">
+  <div class="logo">🐾 <span>PETZONE</span><small>Gestión de tienda de mascotas</small></div>
+  <nav class="nav">
+    <button onclick="show('dashboard',this)">🏠 <span>Dashboard</span></button>
+    <button onclick="show('pos',this)">🛒 <span>Ventas</span></button>
+    <button onclick="show('menu',this)">🐾 <span>Catálogo</span></button>
+    <button onclick="show('clientes',this)">👥 <span>Clientes</span></button>
+    <button onclick="show('proveedores',this)">🚚 <span>Proveedores</span></button>
+    <button onclick="show('inventario',this)">📦 <span>Inventario</span></button>
+    <button onclick="show('empleados',this)">👨‍💼 <span>Empleados</span></button>
+    <button onclick="show('caja',this)">💵 <span>Caja</span></button>
+    <button onclick="show('usuarios',this)">🔐 <span>Usuarios</span></button>
+    <button onclick="show('reportes',this)">📊 <span>Reportes</span></button>
+  </nav>
+  <button class="btn red" style="width:100%;margin-top:25px" onclick="logout()">Salir</button>
+</aside>
+<main class="main">
+  <div class="top"><h1 id="title">Dashboard</h1><div class="user">👤 <b id="userLabel">admin</b></div></div>
+  <section id="content"></section>
+</main>
+</div>
+
+<div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn red" onclick="closeModal()">✕</button></div><div id="modalBody" style="margin-top:18px"></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const KEY='petzone_html_data_v1';
+const initial={
+ clientes:[{id:1,nombre:'Cliente General',telefono:'',correo:'',mascota:'',puntos:0}],
+ proveedores:[
+  {id:1,nombre:'PetDistribuye',telefono:'5555-1001',correo:'ventas@petdistribuye.com',direccion:'Ciudad de Guatemala',activo:'Activo'},
+  {id:2,nombre:'AnimalSupply',telefono:'5555-1002',correo:'contacto@animalsupply.com',direccion:'Mixco',activo:'Activo'}],
+ empleados:[
+  {id:1,nombre:'Ana López',puesto:'Administradora',telefono:'5555-2001',correo:'ana@petzone.com',salario:6500,estado:'Activo'},
+  {id:2,nombre:'Carlos Pérez',puesto:'Vendedor',telefono:'5555-2002',correo:'carlos@petzone.com',salario:3600,estado:'Activo'},
+  {id:3,nombre:'Sofía García',puesto:'Cajera',telefono:'5555-2003',correo:'sofia@petzone.com',salario:3800,estado:'Activo'}],
+ usuarios:[{id:1,usuario:'admin',rol:'admin',activo:'Sí'},{id:2,usuario:'cajero',rol:'cajero',activo:'Sí'},{id:3,usuario:'vendedor',rol:'vendedor',activo:'Sí'}],
+ productos:[
+ ['Alimento Premium para Perro','Perros','DogPlus',185,130,18,5,'dog_food.png'],
+ ['Alimento para Gato Adulto','Gatos','CatLife',145,98,22,5,'cat_food.png'],
+ ['Premios de Pollo','Perros','PetSnack',38,22,35,8,'treats.png'],
+ ['Arena para Gato 10 kg','Gatos','CleanCat',78,52,16,4,'litter.png'],
+ ['Pelota Mordedora','Accesorios','PetFun',32,18,28,6,'ball.png'],
+ ['Cama para Mascota','Accesorios','ComfortPet',220,145,8,2,'bed.png'],
+ ['Collar Ajustable','Accesorios','PetStyle',45,25,25,5,'collar.png'],
+ ['Correa Reforzada','Accesorios','PetStyle',65,38,19,4,'leash.png'],
+ ['Shampoo Antipulgas','Higiene','CleanPet',58,34,14,4,'shampoo.png'],
+ ['Kit de Higiene Dental','Higiene','SmilePet',72,44,10,3,'dental.png'],
+ ['Alimento para Aves','Aves','BirdMix',55,34,12,3,'bird_food.png'],
+ ['Alimento para Peces','Peces','AquaFood',42,24,17,4,'fish_food.png'],
+ ['Jaula para Hámster','Roedores','HomePet',310,220,5,1,'cage.png'],
+ ['Vitaminas para Mascotas','Veterinaria','VitaPet',95,60,9,2,'vitamins.png']
+ ].map((x,i)=>({id:i+1,nombre:x[0],categoria:x[1],marca:x[2],precio:x[3],costo:x[4],stock:x[5],minimo:x[6],imagen:x[7]})),
+ ventas:[], caja:[]
+};
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||initial;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function money(n){return 'Q '+Number(n||0).toLocaleString('es-GT',{minimumFractionDigits:2})}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2200)}
+function login(){document.getElementById('loginView').classList.add('hidden');document.getElementById('app').classList.remove('hidden');show('dashboard')}
+function logout(){document.getElementById('app').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden')}
+function show(page,btn){
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active');
+ const names={dashboard:'Dashboard',pos:'Punto de Venta',menu:'Catálogo de Productos',clientes:'Clientes',proveedores:'Proveedores',inventario:'Inventario',empleados:'Empleados',caja:'Caja / Cobros',usuarios:'Usuarios',reportes:'Reportes'};
+ document.getElementById('title').textContent=names[page]; window.currentPage=page;
+ ({dashboard:dashboard,pos:pos,menu:menu,clientes:clientes,proveedores:proveedores,inventario:inventario,empleados:empleados,caja:caja,usuarios:usuarios,reportes:reportes}[page])();
+}
+function reportBar(title,cols,getRows){
+ let key=encodeURIComponent(title);
+ return `<div class="reportbar">
+  <button class="btn" onclick='makePDF(${JSON.stringify(title)},${JSON.stringify(cols)},${getRows.name}())'>📄 PDF</button>
+  <button class="btn" onclick='makeExcel(${JSON.stringify(title)},${JSON.stringify(cols)},${getRows.name}())'>📊 EXCEL</button>
+  <button class="btn" onclick='makeWhatsApp(${JSON.stringify(title)},${JSON.stringify(cols)},${getRows.name}())'>📱 WHATSAPP</button>
+ </div>`;
+}
+function rowsToText(cols,rows){return rows.map(r=>cols.map(c=>r[c]??'').join(' | ')).join('\n')}
+function makePDF(title,cols,rows){
+ if(!window.jspdf){toast('Abre con internet para cargar el generador PDF');return}
+ const {jsPDF}=window.jspdf;let doc=new jsPDF({orientation:cols.length>6?'landscape':'portrait'});
+ doc.setFontSize(18);doc.text('PETZONE',14,15);doc.setFontSize(12);doc.text(title,14,23);
+ doc.setFontSize(9);doc.text(new Date().toLocaleString('es-GT'),14,30);
+ doc.autoTable({startY:35,head:[cols],body:rows.map(r=>cols.map(c=>r[c]??'')),styles:{fontSize:8}});
+ doc.save(title.replace(/\s+/g,'_')+'.pdf');toast('PDF generado');
+}
+function makeExcel(title,cols,rows){
+ if(!window.XLSX){toast('Abre con internet para cargar el generador Excel');return}
+ let aoa=[cols,...rows.map(r=>cols.map(c=>r[c]??''))],ws=XLSX.utils.aoa_to_sheet(aoa),wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,ws,'Informe');XLSX.writeFile(wb,title.replace(/\s+/g,'_')+'.xlsx');toast('Excel generado');
+}
+function makeWhatsApp(title,cols,rows){
+ let phone=prompt('Escribe el número de WhatsApp con código de país, por ejemplo 50255550000:');if(!phone)return;
+ let text=`*PETZONE - ${title}*%0AFecha: ${encodeURIComponent(new Date().toLocaleString('es-GT'))}%0A%0A${encodeURIComponent(rowsToText(cols,rows))}`;
+ window.open('https://wa.me/'+phone.replace(/\D/g,'')+'?text='+text,'_blank');
+}
+function table(cols,rows){
+ return `<div style="overflow:auto"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function dashboard(){
+ let sales=data.ventas.filter(v=>v.estado==='Pagado').reduce((a,v)=>a+v.total,0), stock=data.productos.reduce((a,p)=>a+p.stock*p.costo,0);
+ document.getElementById('content').innerHTML=`<div class="cards">
+ <div class="card">💰 Ventas acumuladas<div class="big">${money(sales)}</div></div>
+ <div class="card">🛒 Ventas registradas<div class="big">${data.ventas.length}</div></div>
+ <div class="card">🐾 Productos<div class="big">${data.productos.length}</div></div>
+ <div class="card">📦 Valor inventario<div class="big">${money(stock)}</div></div></div>
+ <div class="panel"><h2>Bienvenido a PetZone 🐾</h2><p class="muted">Sistema web convertido desde la aplicación original. Los datos de esta versión se guardan en este navegador.</p>
+ <div class="toolbar"><button class="btn primary" onclick="show('pos')">🛒 Nueva venta</button><button class="btn" onclick="show('menu')">🐾 Ver catálogo</button><button class="btn" onclick="show('reportes')">📊 Ver reportes</button></div></div>`;
+}
+function menu(){
+ let search=window.menuSearch||'';
+ document.getElementById('content').innerHTML=`<div class="panel"><div class="toolbar"><button class="btn primary" onclick="productForm()">＋ Nuevo producto</button><input placeholder="🔎 Buscar producto..." value="${search}" oninput="window.menuSearch=this.value;menu()"></div>
+ <div class="grid-products">${data.productos.filter(p=>(p.nombre+' '+p.categoria+' '+p.marca).toLowerCase().includes(search.toLowerCase())).map(p=>`<div class="product">
+ <img src="imagenes/${p.imagen||'dog_food.png'}" onerror="this.style.display='none'"><h3>${p.nombre}</h3><div class="muted">${p.marca} • ${p.categoria}</div><p class="price">${money(p.precio)}</p><div class="${p.stock<=p.minimo?'low':''}">Stock: ${p.stock} ${p.stock<=p.minimo?'⚠ BAJO':'✓ OK'}</div><div class="toolbar" style="margin-top:10px"><button class="btn" onclick="productForm(${p.id})">✎ Editar</button><button class="btn red" onclick="deleteProduct(${p.id})">🗑</button></div></div>`).join('')}</div></div>`;
+}
+function productForm(id){
+ let p=data.productos.find(x=>x.id===id)||{nombre:'',categoria:'Perros',marca:'',precio:'',costo:'',stock:0,minimo:5,imagen:'dog_food.png'};
+ openModal('Producto',`<div class="form">
+ <label>Nombre<input id="f_nombre" value="${p.nombre}"></label><label>Categoría<select id="f_categoria">${['Perros','Gatos','Aves','Peces','Roedores','Accesorios','Higiene','Veterinaria'].map(x=>`<option ${x===p.categoria?'selected':''}>${x}</option>`).join('')}</select></label>
+ <label>Marca<input id="f_marca" value="${p.marca}"></label><label>Precio<input id="f_precio" type="number" step=".01" value="${p.precio}"></label>
+ <label>Costo<input id="f_costo" type="number" step=".01" value="${p.costo}"></label><label>Stock<input id="f_stock" type="number" value="${p.stock}"></label>
+ <label>Mínimo<input id="f_minimo" type="number" value="${p.minimo}"></label><label>Imagen (nombre de archivo)<input id="f_imagen" value="${p.imagen||''}"></label>
+ <div class="full"><button class="btn primary" onclick="saveProduct(${id||0})">GUARDAR</button></div></div>`);
+}
+function saveProduct(id){
+ let obj={id:id||Date.now(),nombre:$('f_nombre').value,categoria:$('f_categoria').value,marca:$('f_marca').value,precio:+$('f_precio').value,costo:+$('f_costo').value,stock:+$('f_stock').value,minimo:+$('f_minimo').value,imagen:$('f_imagen').value||'dog_food.png'};
+ if(id){let i=data.productos.findIndex(p=>p.id===id);data.productos[i]=obj}else data.productos.push(obj);save();closeModal();menu();toast('Producto guardado');
+}
+function deleteProduct(id){if(confirm('¿Eliminar este producto?')){data.productos=data.productos.filter(p=>p.id!==id);save();menu();}}
+function clientes(){
+ let cols=['ID','Nombre','Teléfono','Correo','Mascota','Puntos'], rows=data.clientes.map(x=>({...x}));
+ document.getElementById('content').innerHTML=`<div class="panel"><div class="toolbar"><button class="btn primary" onclick="clientForm()">＋ Nuevo cliente</button></div>${reportBar('Informe de Clientes',cols,getClientRows)}${table(cols,rows)}</div>`;
+}
+function getClientRows(){return data.clientes.map(x=>({ID:x.id,Nombre:x.nombre,Teléfono:x.telefono,Correo:x.correo,Mascota:x.mascota,Puntos:x.puntos}))}
+function clientForm(id){
+ let p=data.clientes.find(x=>x.id===id)||{nombre:'',telefono:'',correo:'',mascota:'',puntos:0};
+ openModal('Cliente',`<div class="form"><label>Nombre<input id="f_nombre" value="${p.nombre}"></label><label>Teléfono<input id="f_tel" value="${p.telefono}"></label><label>Correo<input id="f_correo" value="${p.correo}"></label><label>Mascota<input id="f_mascota" value="${p.mascota}"></label><label>Puntos<input id="f_puntos" type="number" value="${p.puntos}"></label><div class="full"><button class="btn primary" onclick="saveClient(${id||0})">GUARDAR</button></div></div>`);
+}
+function saveClient(id){let o={id:id||Date.now(),nombre:$('f_nombre').value,telefono:$('f_tel').value,correo:$('f_correo').value,mascota:$('f_mascota').value,puntos:+$('f_puntos').value};if(id)data.clientes[data.clientes.findIndex(x=>x.id===id)]=o;else data.clientes.push(o);save();closeModal();clientes();toast('Cliente guardado')}
+function proveedores(){let cols=['ID','Proveedor','Teléfono','Correo','Dirección','Estado'];document.getElementById('content').innerHTML=`<div class="panel"><div class="toolbar"><button class="btn primary" onclick="supplierForm()">＋ Nuevo proveedor</button></div>${reportBar('Informe de Proveedores',cols,getSupplierRows)}${table(cols,data.proveedores.map(x=>({ID:x.id,Proveedor:x.nombre,Teléfono:x.telefono,Correo:x.correo,Dirección:x.direccion,Estado:x.activo})))}</div>`}
+function getSupplierRows(){return data.proveedores.map(x=>({ID:x.id,Proveedor:x.nombre,Teléfono:x.telefono,Correo:x.correo,Dirección:x.direccion,Estado:x.activo}))}
+function supplierForm(id){let p=data.proveedores.find(x=>x.id===id)||{nombre:'',telefono:'',correo:'',direccion:'',activo:'Activo'};openModal('Proveedor',`<div class="form"><label>Proveedor<input id="f_nombre" value="${p.nombre}"></label><label>Teléfono<input id="f_tel" value="${p.telefono}"></label><label>Correo<input id="f_correo" value="${p.correo}"></label><label>Dirección<input id="f_dir" value="${p.direccion}"></label><label>Estado<select id="f_estado"><option>Activo</option><option>Inactivo</option></select></label><div class="full"><button class="btn primary" onclick="saveSupplier(${id||0})">GUARDAR</button></div></div>`)}
+function saveSupplier(id){let o={id:id||Date.now(),nombre:$('f_nombre').value,telefono:$('f_tel').value,correo:$('f_correo').value,direccion:$('f_dir').value,activo:$('f_estado').value};if(id)data.proveedores[data.proveedores.findIndex(x=>x.id===id)]=o;else data.proveedores.push(o);save();closeModal();proveedores();toast('Proveedor guardado')}
+function inventario(){let cols=['Producto','Categoría','Marca','Stock','Mínimo','Precio','Estado'];document.getElementById('content').innerHTML=`<div class="panel">${reportBar('Informe de Inventario',cols,getInventoryRows)}${table(cols,getInventoryRows())}</div>`}
+function getInventoryRows(){return data.productos.map(p=>({Producto:p.nombre,Categoría:p.categoria,Marca:p.marca,Stock:p.stock,Mínimo:p.minimo,Precio:money(p.precio),Estado:p.stock<=p.minimo?'⚠ BAJO':'✓ OK'}))}
+function empleados(){let cols=['ID','Nombre','Puesto','Teléfono','Correo','Salario','Estado'];document.getElementById('content').innerHTML=`<div class="panel"><div class="toolbar"><button class="btn primary" onclick="employeeForm()">＋ Nuevo empleado</button></div>${reportBar('Informe de Empleados',cols,getEmployeeRows)}${table(cols,getEmployeeRows())}</div>`}
+function getEmployeeRows(){return data.empleados.map(x=>({ID:x.id,Nombre:x.nombre,Puesto:x.puesto,Teléfono:x.telefono,Correo:x.correo,Salario:money(x.salario),Estado:x.estado}))}
+function employeeForm(id){let p=data.empleados.find(x=>x.id===id)||{nombre:'',puesto:'',telefono:'',correo:'',salario:0,estado:'Activo'};openModal('Empleado',`<div class="form"><label>Nombre<input id="f_nombre" value="${p.nombre}"></label><label>Puesto<input id="f_puesto" value="${p.puesto}"></label><label>Teléfono<input id="f_tel" value="${p.telefono}"></label><label>Correo<input id="f_correo" value="${p.correo}"></label><label>Salario<input id="f_sal" type="number" value="${p.salario}"></label><label>Estado<select id="f_estado"><option>Activo</option><option>Inactivo</option></select></label><div class="full"><button class="btn primary" onclick="saveEmployee(${id||0})">GUARDAR</button></div></div>`)}
+function saveEmployee(id){let o={id:id||Date.now(),nombre:$('f_nombre').value,puesto:$('f_puesto').value,telefono:$('f_tel').value,correo:$('f_correo').value,salario:+$('f_sal').value,estado:$('f_estado').value};if(id)data.empleados[data.empleados.findIndex(x=>x.id===id)]=o;else data.empleados.push(o);save();closeModal();empleados();toast('Empleado guardado')}
+function usuarios(){let cols=['ID','Usuario','Rol','Activo'];document.getElementById('content').innerHTML=`<div class="panel">${reportBar('Informe de Usuarios',cols,getUserRows)}${table(cols,getUserRows())}</div>`}
+function getUserRows(){return data.usuarios.map(x=>({ID:x.id,Usuario:x.usuario,Rol:x.rol,Activo:x.activo}))}
+let cart=[];
+function pos(){let cols=['Venta','Cliente','Estado','Total','Pago','Fecha'];document.getElementById('content').innerHTML=`<div class="panel"><div class="toolbar"><button class="btn primary" onclick="newSale()">＋ Nueva venta</button></div>${reportBar('Informe de Ventas',cols,getSalesRows)}${table(cols,getSalesRows())}</div>`}
+function getSalesRows(){return data.ventas.map(v=>({Venta:v.numero,Cliente:v.cliente,Estado:v.estado,Total:money(v.total),Pago:v.pago||'',Fecha:v.fecha}))}
+function newSale(){cart=[];openModal('Nueva venta',`<div class="form"><label>Cliente<select id="saleClient">${data.clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('')}</select></label><label>Buscar producto<input id="saleSearch" oninput="renderSaleProducts()" placeholder="Escribe para buscar"></label><div class="full"><div id="saleProducts" class="grid-products"></div></div><div class="full cart"><h3>Carrito</h3><div id="cartView">Vacío</div><h2>Total: <span id="cartTotal">Q 0.00</span></h2><button class="btn primary" onclick="finishSale()">REGISTRAR VENTA</button></div></div>`);renderSaleProducts()}
+function renderSaleProducts(){let q=(document.getElementById('saleSearch')?.value||'').toLowerCase(),ps=data.productos.filter(p=>p.stock>0&&(p.nombre+' '+p.marca).toLowerCase().includes(q));document.getElementById('saleProducts').innerHTML=ps.map(p=>`<div class="product"><img src="imagenes/${p.imagen||'dog_food.png'}"><h3>${p.nombre}</h3><div class="price">${money(p.precio)}</div><button class="btn" onclick="addCart(${p.id})">＋ Agregar</button></div>`).join('');renderCart()}
+function addCart(id){let p=data.productos.find(x=>x.id===id),x=cart.find(x=>x.id===id);if(x){if(x.qty<p.stock)x.qty++}else cart.push({id,qty:1});renderCart()}
+function renderCart(){let el=document.getElementById('cartView');if(!el)return;el.innerHTML=cart.length?cart.map(x=>{let p=data.productos.find(p=>p.id===x.id);return `<div style="display:flex;justify-content:space-between;padding:7px 0">${p.nombre} × ${x.qty}<b>${money(p.precio*x.qty)}</b><button class="btn red" onclick="removeCart(${x.id})">✕</button></div>`}).join(''):'Vacío';let total=cart.reduce((a,x)=>a+data.productos.find(p=>p.id===x.id).precio*x.qty,0);document.getElementById('cartTotal').textContent=money(total)}
+function removeCart(id){cart=cart.filter(x=>x.id!==id);renderCart()}
+function finishSale(){if(!cart.length)return toast('Agrega productos al carrito');let total=cart.reduce((a,x)=>a+data.productos.find(p=>p.id===x.id).precio*x.qty,0),client=data.clientes.find(c=>c.id==$('saleClient').value);cart.forEach(x=>data.productos.find(p=>p.id===x.id).stock-=x.qty);data.ventas.unshift({id:Date.now(),numero:'V-'+Date.now().toString().slice(-6),cliente:client?.nombre||'Cliente General',estado:'Pendiente',total,pago:'',fecha:new Date().toLocaleString('es-GT')});save();closeModal();pos();toast('Venta registrada')}
+function caja(){let cols=['Venta','Cliente','Total','Fecha','Estado'];document.getElementById('content').innerHTML=`<div class="panel">${reportBar('Informe de Caja',cols,getCashRows)}<h3>Ventas pendientes de cobro</h3>${data.ventas.filter(v=>v.estado==='Pendiente').map(v=>`<div class="card" style="margin:8px 0;display:flex;align-items:center;gap:20px"><b>${v.numero}</b><span>${v.cliente}</span><strong>${money(v.total)}</strong><span style="flex:1"></span><button class="btn" onclick="paySale(${v.id},'Efectivo')">Efectivo</button><button class="btn" onclick="paySale(${v.id},'Tarjeta')">Tarjeta</button><button class="btn" onclick="paySale(${v.id},'Transferencia')">Transferencia</button></div>`).join('')||'<p class="muted">No hay ventas pendientes.</p>'}</div>`}
+function getCashRows(){return data.ventas.map(v=>({Venta:v.numero,Cliente:v.cliente,Total:money(v.total),Fecha:v.fecha,Estado:v.estado}))}
+function paySale(id,m){let v=data.ventas.find(x=>x.id===id);v.estado='Pagado';v.pago=m;data.caja.push({tipo:'Ingreso',concepto:`Venta ${v.numero} - ${m}`,monto:v.total,fecha:new Date().toLocaleString('es-GT')});save();caja();toast('Cobro realizado')}
+function reportes(){let cols=['Venta','Cliente','Estado','Total','Pago','Fecha'];document.getElementById('content').innerHTML=`<div class="cards"><div class="card">💰 Ventas pagadas<div class="big">${money(data.ventas.filter(v=>v.estado==='Pagado').reduce((a,v)=>a+v.total,0))}</div></div><div class="card">🛒 Ventas<div class="big">${data.ventas.length}</div></div><div class="card">🐾 Productos<div class="big">${data.productos.length}</div></div><div class="card">📦 Inventario<div class="big">${money(data.productos.reduce((a,p)=>a+p.stock*p.costo,0))}</div></div></div><div class="panel">${reportBar('Informe General de Ventas',cols,getSalesRows)}${table(cols,getSalesRows())}</div>`}
+function openModal(title,body){
+ const m=document.getElementById('modal');
+ document.getElementById('modalTitle').textContent=title;
+ document.getElementById('modalBody').innerHTML=body;
+ m.classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+window.addEventListener('error',e=>{
+ const box=document.getElementById('toast');
+ if(box){box.textContent='Error: '+e.message;box.style.display='block';setTimeout(()=>box.style.display='none',5000);}
+});
+show('dashboard');
+</script>
+</body>
+</html>
